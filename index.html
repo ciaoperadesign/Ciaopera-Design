@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ciaopera · дизайн для Discord</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;500&family=Onest:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* Layout: каменный фон, стеклянные панели; герой в две колонки, работы с фильтрами, опции/цены/шаги рядами */
+:root{
+  --bg:#0b0b0b;
+  --chalk:#e6e3dd;      /* заголовки: светлый, но не белый */
+  --ink:#cfccc6;        /* основной матовый текст */
+  --ink-2:#a7a39d;      /* второстепенный */
+  --ink-3:#86837e;      /* подписи, размеры */
+  --line:rgba(214,211,205,.13);
+  --panel:rgba(12,12,12,.6);
+  --mark:rgba(214,211,205,.32);
+  --font-display:'Unbounded','Arial Black',sans-serif;
+  --font-body:'Onest','Segoe UI',Arial,sans-serif;
+  --font-mono:'JetBrains Mono',ui-monospace,Consolas,monospace;
+  --radius:12px;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:84px}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 17px/1.6 var(--font-body);-webkit-font-smoothing:antialiased}
+img{max-width:100%;display:block}
+a{color:inherit}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--chalk);outline-offset:3px;border-radius:6px}
+[hidden]{display:none!important}
+
+/* фон */
+.stone{position:fixed;inset:0;z-index:-2;background:#0b0b0b url(bg.jpg) center/cover no-repeat}
+@media (min-aspect-ratio:1/1){.stone{background-image:url(bg-wide.jpg)}}
+.stone::after{content:"";position:absolute;inset:0;background:radial-gradient(120% 90% at 50% 20%,rgba(0,0,0,0) 0%,rgba(0,0,0,.35) 70%,rgba(0,0,0,.6) 100%)}
+
+.wrap{width:100%;max-width:1240px;margin:0 auto;padding:0 clamp(16px,3vw,32px)}
+
+/* навигация */
+.nav{position:sticky;top:0;z-index:20;background:rgba(10,10,10,.62);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.nav .wrap{display:flex;align-items:center;gap:24px;height:68px}
+.logo{font:500 19px/1 var(--font-display);color:var(--chalk);text-decoration:none;letter-spacing:-.01em;white-space:nowrap}
+.logo span{color:var(--ink-3);font-weight:300}
+.nav nav{margin-left:auto}
+.nav ul{display:flex;gap:22px;list-style:none;margin:0;padding:0}
+.nav ul a{text-decoration:none;color:var(--ink-2);font-size:15px;white-space:nowrap;transition:color .2s}
+.nav ul a:hover{color:var(--chalk)}
+.lang{display:inline-flex;padding:3px;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.03)}
+.lang button{border:0;background:none;padding:6px 10px;border-radius:999px;font:500 12px/1 var(--font-mono);color:var(--ink-3);letter-spacing:.04em;transition:background .2s,color .2s}
+.lang button:hover{color:var(--chalk)}
+.lang button[aria-pressed="true"]{background:var(--chalk);color:#111}
+.nick-btn{display:inline-flex;align-items:center;gap:10px;padding:9px 14px;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.04);font:500 14px/1 var(--font-mono);color:var(--chalk);white-space:nowrap;transition:background .2s,border-color .2s}
+.nick-btn:hover{background:rgba(255,255,255,.09);border-color:rgba(214,211,205,.3)}
+.nick-btn small{font:400 12px/1 var(--font-body);color:var(--ink-3)}
+.ico{width:15px;height:15px;flex:none}
+
+/* герой */
+.hero{padding:clamp(48px,8vw,104px) 0 clamp(56px,7vw,96px)}
+.hero .wrap{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,.75fr);gap:clamp(32px,5vw,72px);align-items:center}
+.eyebrow{display:inline-flex;align-items:center;gap:10px;font:500 12.5px/1 var(--font-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);margin:0 0 26px}
+.eyebrow::before{content:"";width:28px;height:1px;background:var(--ink-3)}
+h1{font:300 clamp(2.3rem,5.2vw,4.5rem)/1.04 var(--font-display);letter-spacing:-.03em;color:var(--chalk);margin:0 0 28px;text-wrap:balance;text-shadow:0 2px 0 rgba(0,0,0,.65),0 0 40px rgba(0,0,0,.5)}
+h1 em{font-style:normal;color:var(--ink-3)}
+.lead{max-width:34em;color:var(--ink-2);font-size:clamp(17px,1.4vw,19px);margin:0 0 36px}
+.hero .lead{margin-bottom:8px}
+.cat{width:150px;height:150px;image-rendering:pixelated;margin-left:-18px;filter:drop-shadow(0 6px 14px rgba(0,0,0,.5))}
+.cta{display:flex;flex-wrap:wrap;gap:12px}
+.btn{display:inline-flex;align-items:center;gap:10px;padding:15px 24px;border-radius:10px;font:500 15px/1 var(--font-body);text-decoration:none;border:1px solid transparent;transition:background .2s,border-color .2s,color .2s,transform .2s}
+.btn:hover{transform:translateY(-1px)}
+.btn-solid{background:var(--chalk);color:#111}
+.btn-solid:hover{background:#f2efe9}
+.btn-ghost{border-color:rgba(214,211,205,.28);color:var(--chalk);background:rgba(10,10,10,.35)}
+.btn-ghost:hover{border-color:rgba(214,211,205,.5);background:rgba(255,255,255,.06)}
+
+/* карточка профиля */
+.profile-wrap{display:flex;flex-direction:column;align-items:center;gap:16px}
+.profile{width:100%;max-width:360px;background:rgba(17,17,17,.88);border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.6),0 0 0 1px rgba(0,0,0,.4);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.pf-banner{position:relative;aspect-ratio:17/6;overflow:hidden}
+.pf-banner::before{content:"";position:absolute;inset:0;background:url(bg-wide.jpg) 30% 60%/240% auto;filter:brightness(2.3) contrast(1.15) grayscale(1)}
+.pf-banner::after{content:"";position:absolute;inset:0;background:linear-gradient(115deg,rgba(255,255,255,.14) 0%,rgba(255,255,255,0) 45%),linear-gradient(0deg,rgba(17,17,17,.55),rgba(17,17,17,0) 60%)}
+.pf-banner span{position:absolute;right:12px;top:10px;z-index:1;font:500 11px/1 var(--font-mono);color:rgba(230,227,221,.75);letter-spacing:.06em}
+.pf-head{display:flex;align-items:flex-end;justify-content:space-between;padding:0 16px;margin-top:-46px;position:relative}
+.pf-avatar{position:relative;width:92px;height:92px;border-radius:50%;background:#1d1d1d;border:6px solid #111;display:grid;place-items:center;font:400 38px/1 var(--font-display);color:var(--chalk)}
+.pf-avatar::after{content:"";position:absolute;right:0;bottom:2px;width:20px;height:20px;border-radius:50%;background:var(--ink);border:5px solid #111}
+.pf-badge{font:500 11px/1 var(--font-mono);color:var(--ink-3);padding:6px 9px;border:1px solid var(--line);border-radius:6px;background:rgba(255,255,255,.03);margin-bottom:6px}
+.pf-body{padding:12px 16px 18px}
+.pf-name{font:500 21px/1.2 var(--font-display);color:var(--chalk);margin:0}
+.pf-tag{font:400 13px/1.4 var(--font-mono);color:var(--ink-3);margin:4px 0 14px}
+.pf-box{background:rgba(255,255,255,.035);border:1px solid rgba(214,211,205,.07);border-radius:10px;padding:12px 13px;margin-bottom:10px}
+.pf-label{font:600 11px/1 var(--font-body);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin:0 0 8px}
+.pf-box p{margin:0;font-size:14.5px;line-height:1.5;color:var(--ink)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{display:inline-flex;align-items:center;gap:7px;padding:5px 10px;border-radius:6px;background:rgba(255,255,255,.05);font-size:13px;color:var(--ink)}
+.chip::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--c,#cfccc6);flex:none}
+.pf-btn{width:100%;margin-top:4px;padding:11px;border-radius:8px;border:0;background:rgba(230,227,221,.92);color:#111;font:500 14px/1 var(--font-body);display:flex;align-items:center;justify-content:center;gap:8px;transition:background .2s}
+.pf-btn:hover{background:#f2efe9}
+.profile-note{max-width:360px;margin:0;font:400 12.5px/1.5 var(--font-mono);color:var(--ink-3);text-align:center}
+
+/* секции */
+section{padding:clamp(48px,6vw,80px) 0}
+.sec-head{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px 48px;align-items:end;margin-bottom:40px}
+.sec-num{font:500 12.5px/1 var(--font-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);margin:0 0 16px}
+h2{font:300 clamp(1.9rem,3.6vw,3rem)/1.08 var(--font-display);letter-spacing:-.025em;color:var(--chalk);margin:0;text-wrap:balance}
+.sec-head p.aside{margin:0;color:var(--ink-2);max-width:30em;justify-self:end}
+
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+
+/* работы и фильтры */
+.works-panel{padding:20px}
+.tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
+.tab{padding:11px 20px;border-radius:999px;border:1px solid rgba(214,211,205,.2);background:rgba(255,255,255,.03);font:500 14.5px/1 var(--font-body);color:var(--ink-2);transition:background .2s,color .2s,border-color .2s}
+.tab:hover{color:var(--chalk);border-color:rgba(214,211,205,.4)}
+.tab[aria-selected="true"]{background:var(--chalk);border-color:var(--chalk);color:#111}
+.tp{animation:fade .35s ease both}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+/* колонки подобраны так, чтобы баннер 1360×480 и баннер 960×540 были одной высоты */
+.g-banners{display:grid;grid-template-columns:minmax(0,2.833fr) minmax(0,1.778fr);gap:14px;align-items:start}
+.g-avatars{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(14px,3vw,40px);padding:4px clamp(0px,4vw,48px)}
+.g-servers{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.empty-frame{min-height:clamp(200px,22vw,270px);border:1px dashed rgba(214,211,205,.18);border-radius:8px;background:repeating-linear-gradient(135deg,rgba(214,211,205,.03) 0 1px,transparent 1px 11px)}
+.p-foot{margin:20px 0 0;padding-top:14px;border-top:1px solid var(--line);font-size:14px;color:var(--ink-2)}
+
+.slot{position:relative;margin:0;border-radius:8px;overflow:hidden;border:1px solid rgba(214,211,205,.1);background-color:rgba(255,255,255,.025);padding:0;text-align:left;width:100%}
+.slot.profile-banner{aspect-ratio:17/6}
+.slot.server-banner{aspect-ratio:16/9}
+.slot.server{aspect-ratio:16/10}
+.slot.avatar{aspect-ratio:1;border-radius:50%}
+.slot.empty{
+  background:
+    linear-gradient(var(--mark),var(--mark)) left 10px top 10px/14px 1px no-repeat,
+    linear-gradient(var(--mark),var(--mark)) left 10px top 10px/1px 14px no-repeat,
+    linear-gradient(var(--mark),var(--mark)) right 10px top 10px/14px 1px no-repeat,
+    linear-gradient(var(--mark),var(--mark)) right 10px top 10px/1px 14px no-repeat,
+    linear-gradient(var(--mark),var(--mark)) left 10px bottom 10px/14px 1px no-repeat,
+    linear-gradient(var(--mark),var(--mark)) left 10px bottom 10px/1px 14px no-repeat,
+    linear-gradient(var(--mark),var(--mark)) right 10px bottom 10px/14px 1px no-repeat,
+    linear-gradient(var(--mark),var(--mark)) right 10px bottom 10px/1px 14px no-repeat,
+    repeating-linear-gradient(135deg,rgba(214,211,205,.035) 0 1px,transparent 1px 11px),
+    rgba(255,255,255,.02);
+  border:1px solid rgba(214,211,205,.08);
+  display:grid;place-items:center
+}
+.slot.avatar.empty{background:repeating-linear-gradient(135deg,rgba(214,211,205,.035) 0 1px,transparent 1px 11px),rgba(255,255,255,.02);border:1px dashed rgba(214,211,205,.24)}
+.ph{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;padding:8px}
+.ph-size{font:500 clamp(13px,1.3vw,16px)/1 var(--font-mono);color:var(--ink);letter-spacing:.02em}
+.ph-name{font-size:13px;color:var(--ink-3);line-height:1.3}
+.slot.avatar .ph-name{font-size:12px}
+
+.slot.filled{cursor:zoom-in;transition:border-color .25s}
+.slot.filled img{width:100%;height:100%;object-fit:cover;transition:transform .5s cubic-bezier(.2,.7,.2,1)}
+.slot.filled:hover{border-color:rgba(214,211,205,.35)}
+.slot.filled:hover img{transform:scale(1.04)}
+
+/* опции */
+.services{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+.svc{padding:24px 22px;display:flex;flex-direction:column;gap:14px;transition:border-color .25s,background .25s}
+.svc:hover{border-color:rgba(214,211,205,.28);background:rgba(16,16,16,.7)}
+.svc-icon{width:44px;height:44px;border:1px solid var(--line);border-radius:10px;display:grid;place-items:center;color:var(--ink)}
+.svc h3{font:400 18px/1.25 var(--font-display);color:var(--chalk);margin:0}
+.svc p{margin:0;font-size:15px;line-height:1.55;color:var(--ink-2)}
+.svc dl{margin:auto 0 0;padding-top:14px;border-top:1px solid var(--line);display:grid;grid-template-columns:auto 1fr;gap:6px 12px;font:400 12.5px/1.4 var(--font-mono)}
+.svc dt{color:var(--ink-3)}
+.svc dd{margin:0;color:var(--ink);text-align:right;font-variant-numeric:tabular-nums}
+
+/* цены и шаги: ряд ячеек в одной панели */
+.row-panel{padding:6px}
+.cells{display:grid;list-style:none;margin:0;padding:0}
+.cells.c3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.cells.c4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.cell{padding:26px 24px 28px;border-left:1px solid var(--line)}
+.cell:first-child{border-left:0}
+.big{font:300 44px/1 var(--font-display);color:var(--ink-3);letter-spacing:-.03em;margin-bottom:22px;display:block;font-variant-numeric:tabular-nums}
+.big.price{color:var(--chalk)}
+.big small{font:500 14px/1 var(--font-mono);letter-spacing:.04em;color:var(--ink-3);margin-left:6px}
+.cell h3{font:500 17px/1.3 var(--font-body);color:var(--chalk);margin:0 0 8px}
+.cell p{margin:0;font-size:15px;color:var(--ink-2)}
+.cell .spec{font:400 13px/1.4 var(--font-mono);color:var(--ink-3)}
+.pay{display:grid;grid-template-columns:auto 1fr;gap:8px 24px;align-items:baseline;margin:0 6px 6px;padding:20px 18px;border-top:1px solid var(--line)}
+.pay .pf-label{margin:0;white-space:nowrap}
+.pay p{margin:0;color:var(--ink)}
+.pay b{font-weight:500;color:var(--chalk)}
+
+/* контакт */
+.contact{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(24px,5vw,64px);align-items:center;padding:clamp(28px,4vw,48px)}
+.contact p.lead{margin:20px 0 0}
+.friend{background:rgba(17,17,17,.85);border:1px solid var(--line);border-radius:12px;padding:22px}
+.friend .pf-label{margin-bottom:6px}
+.friend .hint{margin:0 0 16px;font-size:14px;color:var(--ink-2)}
+.field{display:flex;align-items:center;gap:10px;padding:8px 8px 8px 16px;border-radius:10px;background:#0c0c0c;border:1px solid rgba(214,211,205,.18)}
+.field output{flex:1;font:500 18px/1 var(--font-mono);color:var(--chalk);letter-spacing:.02em;user-select:all;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.field button{padding:12px 16px;border-radius:8px;border:0;background:var(--chalk);color:#111;font:500 14px/1 var(--font-body);display:inline-flex;gap:8px;align-items:center;white-space:nowrap;transition:background .2s}
+.field button:hover{background:#f6f3ed}
+.friend .path{margin:14px 0 0;font:400 12.5px/1.5 var(--font-mono);color:var(--ink-3)}
+
+footer{border-top:1px solid var(--line);background:rgba(8,8,8,.6);padding:26px 0;font-size:14px;color:var(--ink-3)}
+footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+
+/* лайтбокс и тост */
+.lightbox{position:fixed;inset:0;z-index:50;background:rgba(5,5,5,.92);display:grid;grid-template-columns:64px 1fr 64px;align-items:center;padding:24px 8px}
+.lightbox figure{margin:0;display:flex;flex-direction:column;align-items:center;gap:14px;min-width:0}
+.lightbox img{max-height:80vh;max-width:100%;border-radius:8px;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+.lightbox figcaption{font:400 13px/1.4 var(--font-mono);color:var(--ink-2);text-align:center}
+.lb-btn{width:48px;height:48px;border-radius:50%;border:1px solid var(--line);background:rgba(255,255,255,.05);font-size:22px;line-height:1;color:var(--chalk);display:grid;place-items:center;justify-self:center}
+.lb-btn:hover{background:rgba(255,255,255,.12)}
+.lb-close{position:absolute;top:16px;right:16px}
+.toast{position:fixed;left:50%;bottom:28px;z-index:60;transform:translate(-50%,16px);opacity:0;pointer-events:none;padding:12px 18px;border-radius:10px;background:rgba(20,20,20,.95);border:1px solid rgba(214,211,205,.22);color:var(--chalk);font-size:14px;transition:opacity .25s,transform .25s;max-width:calc(100vw - 32px);text-align:center}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+/* появление героя */
+.rise{animation:rise .8s cubic-bezier(.2,.7,.2,1) both;animation-delay:calc(var(--i,0)*90ms)}
+@keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .rise,.tp{animation:none}
+  *{transition:none!important}
+}
+
+/* адаптив */
+@media (max-width:1100px){
+  .nav ul{display:none}
+  .nav .lang{margin-left:auto}
+  .services{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .cells.c4{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .cells.c4 .cell:nth-child(3){border-left:0}
+  .cells.c4 .cell:nth-child(n+3){border-top:1px solid var(--line)}
+}
+@media (max-width:900px){
+  .hero .wrap{grid-template-columns:1fr}
+  .sec-head{grid-template-columns:1fr}
+  .sec-head p.aside{justify-self:start}
+  .contact{grid-template-columns:1fr}
+  .g-avatars{padding:0}
+}
+@media (max-width:720px){
+  .nick-btn small{display:none}
+  .g-servers{grid-template-columns:1fr}
+  .g-banners{grid-template-columns:1fr}
+  .cells.c3{grid-template-columns:1fr}
+  .cells.c3 .cell{border-left:0}
+  .cells.c3 .cell+.cell{border-top:1px solid var(--line)}
+  .pay{grid-template-columns:1fr}
+}
+@media (max-width:560px){
+  .nav .wrap{gap:10px}
+  .logo span{display:none}
+  .nick-btn{padding:9px 11px}
+  .services,.cells.c4{grid-template-columns:1fr}
+  .cells.c4 .cell{border-left:0!important}
+  .cells.c4 .cell+.cell{border-top:1px solid var(--line)}
+  .g-avatars{grid-template-columns:repeat(2,1fr);gap:14px}
+  .lightbox{grid-template-columns:44px 1fr 44px;padding:16px 4px}
+  .lb-btn{width:40px;height:40px}
+  .field output{font-size:16px}
+}
+@media (max-width:400px){
+  .nick-btn .nick-text{display:none}
+}
+</style>
+</head>
+<body>
+<div class="stone" aria-hidden="true"></div>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+</svg>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="logo" href="#top">ciaopera<span> / design</span></a>
+    <nav data-i18n-aria="nav.aria" aria-label="Разделы">
+      <ul>
+        <li><a href="#works" data-i18n="nav.works">Работы</a></li>
+        <li><a href="#options" data-i18n="nav.options">Опции</a></li>
+        <li><a href="#prices" data-i18n="nav.prices">Цены</a></li>
+        <li><a href="#order" data-i18n="nav.order">Как заказать</a></li>
+        <li><a href="#contact" data-i18n="nav.contact">Контакт</a></li>
+      </ul>
+    </nav>
+    <div class="lang" role="group" data-i18n-aria="lang.aria" aria-label="Язык">
+      <button type="button" data-lang="ru" aria-pressed="true">RU</button>
+      <button type="button" data-lang="uk" aria-pressed="false">UA</button>
+      <button type="button" data-lang="en" aria-pressed="false">EN</button>
+    </div>
+    <button class="nick-btn" type="button" data-copy data-i18n-title="nick.title" title="Скопировать ник в Discord">
+      <small>Discord</small><span class="nick-text">ciaopera</span>
+      <svg class="ico"><use href="#i-copy"/></svg>
+    </button>
+  </div>
+</header>
+
+<main id="top">
+  <!-- ГЕРОЙ -->
+  <div class="hero">
+    <div class="wrap">
+      <div>
+        <p class="eyebrow rise" style="--i:0" data-i18n="hero.eyebrow">Графический дизайн для Discord</p>
+        <h1 class="rise" style="--i:1" data-i18n-html="hero.h1">Оформление Discord профилей и&nbsp;<em>серверов</em></h1>
+        <p class="lead rise" style="--i:2" data-i18n="hero.lead">Делаю графику для профилей и серверов Discord: аватарки, баннеры, иконки и полное оформление сервера в одном стиле. Ниже примеры работ, цены и контакт для заказа.</p>
+        <img class="cat rise" style="--i:3" src="cat.webp" width="250" height="250" alt="" aria-hidden="true">
+      </div>
+
+      <div class="profile-wrap rise" style="--i:3">
+        <article class="profile" data-i18n-aria="card.aria" aria-label="Карточка профиля ciaopera">
+          <div class="pf-banner"><span>1360 × 480</span></div>
+          <div class="pf-head">
+            <div class="pf-avatar" aria-hidden="true">c</div>
+            <span class="pf-badge">512 × 512</span>
+          </div>
+          <div class="pf-body">
+            <p class="pf-name">ciaopera</p>
+            <p class="pf-tag" data-i18n="card.tag">ciaopera · графический дизайнер</p>
+            <div class="pf-box">
+              <p class="pf-label" data-i18n="card.about">Обо мне</p>
+              <p data-i18n="card.aboutText">Создаю оформления в Adobe Photoshop, ориентируясь на ваш вкус, стиль и пожелания.</p>
+            </div>
+            <div class="pf-box">
+              <p class="pf-label" data-i18n="card.options">Опции</p>
+              <div class="chips">
+                <span class="chip" style="--c:#e6e3dd" data-i18n="chip.avatars">Аватарки</span>
+                <span class="chip" style="--c:#b9b5af" data-i18n="chip.banners">Баннеры</span>
+                <span class="chip" style="--c:#8d8a85" data-i18n="chip.servers">Серверы</span>
+                <span class="chip" style="--c:#5f5c58" data-i18n="chip.other">Иные дизайнерские услуги</span>
+              </div>
+            </div>
+            <button class="pf-btn" type="button" data-copy><svg class="ico"><use href="#i-copy"/></svg><span data-i18n="card.btn">Скопировать ник</span></button>
+          </div>
+        </article>
+        <p class="profile-note" data-i18n="card.note">Так работа выглядит в профиле: аватарка поверх баннера</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 01 РАБОТЫ -->
+  <section id="works">
+    <div class="wrap">
+      <div class="sec-head">
+        <div>
+          <p class="sec-num" data-i18n="works.num">01 · Работы</p>
+          <h2 data-i18n="works.h2">Примеры работ</h2>
+        </div>
+        <p class="aside" data-i18n="works.aside">Баннеры, аватарки и оформление серверов, сделанные для клиентов. Нажмите на работу, чтобы открыть её в полном размере.</p>
+      </div>
+
+      <div class="panel works-panel">
+        <div class="tabs" role="tablist" data-i18n-aria="tabs.aria" aria-label="Фильтр работ">
+          <button class="tab" role="tab" id="tab-banners" aria-controls="tp-banners" aria-selected="true" tabindex="0" data-tab="banners" data-i18n="tab.banners">Баннеры</button>
+          <button class="tab" role="tab" id="tab-avatars" aria-controls="tp-avatars" aria-selected="false" tabindex="-1" data-tab="avatars" data-i18n="tab.avatars">Аватарки</button>
+          <button class="tab" role="tab" id="tab-servers" aria-controls="tp-servers" aria-selected="false" tabindex="-1" data-tab="servers" data-i18n="tab.servers">Серверы</button>
+        </div>
+        <div class="tp" id="tp-banners" role="tabpanel" aria-labelledby="tab-banners">
+          <div class="g-banners" id="g-banners"></div>
+        </div>
+        <div class="tp" id="tp-avatars" role="tabpanel" aria-labelledby="tab-avatars" hidden>
+          <div class="g-avatars" id="g-avatars"></div>
+          <p class="p-foot" data-i18n="avatars.note">Discord показывает аватарку кругом, поэтому главное держу в центре кадра.</p>
+        </div>
+        <div class="tp" id="tp-servers" role="tabpanel" aria-labelledby="tab-servers" hidden>
+          <div id="g-servers"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 ОПЦИИ -->
+  <section id="options">
+    <div class="wrap">
+      <div class="sec-head">
+        <div>
+          <p class="sec-num" data-i18n="options.num">02 · Опции</p>
+          <h2 data-i18n="options.h2">Опции для заказа</h2>
+        </div>
+        <p class="aside" data-i18n="options.aside">Каждую работу отдаю в размерах, которые принимает Discord, чтобы картинка не обрезалась и не теряла чёткость.</p>
+      </div>
+
+      <div class="services">
+        <article class="panel svc">
+          <div class="svc-icon" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="10" r="3.2"/><path d="M6.5 18.2c1.4-2.2 3.3-3.2 5.5-3.2s4.1 1 5.5 3.2"/></svg></div>
+          <h3 data-i18n="svc.avatar.h">Аватарка</h3>
+          <p data-i18n="svc.avatar.p">Аватарка для профиля или бота. Учитываю круглую обрезку, чтобы картинка читалась даже в маленьком размере в чате.</p>
+          <dl><dt data-i18n="dt.size">размер</dt><dd>512 × 512</dd><dt data-i18n="dt.format">формат</dt><dd>PNG</dd></dl>
+        </article>
+
+        <article class="panel svc">
+          <div class="svc-icon" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="6" width="19" height="8" rx="1.5"/><circle cx="7" cy="15.5" r="3.2"/></svg></div>
+          <h3 data-i18n="svc.banner.h">Баннер профиля</h3>
+          <p data-i18n="svc.banner.p">Полоса над аватаркой в профиле. Важные детали держу подальше от левого нижнего угла, который перекрывает аватарка.</p>
+          <dl><dt data-i18n="dt.size">размер</dt><dd>1360 × 480</dd><dt data-i18n="dt.format">формат</dt><dd>PNG</dd></dl>
+        </article>
+
+        <article class="panel svc">
+          <div class="svc-icon" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 11h18M7 14.5h6M7 17h4"/></svg></div>
+          <h3 data-i18n="svc.sbanner.h">Баннер сервера</h3>
+          <p data-i18n="svc.sbanner.p">Шапка над списком каналов. Первое, что видит участник, когда заходит на сервер.</p>
+          <dl><dt data-i18n="dt.size">размер</dt><dd>960 × 540</dd><dt data-i18n="dt.ratio">пропорции</dt><dd>16:9</dd></dl>
+        </article>
+
+        <article class="panel svc">
+          <div class="svc-icon" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="4"/><rect x="3" y="13" width="8" height="8" rx="4"/><rect x="13" y="13" width="8" height="8" rx="2"/></svg></div>
+          <h3 data-i18n="svc.server.h">Сервер под ключ</h3>
+          <p data-i18n="svc.server.p">Вся графика сервера в одном стиле: иконка, баннер, фон приглашения и иконки ролей.</p>
+          <dl><dt data-i18n="dt.icon">иконка</dt><dd>512 × 512</dd><dt data-i18n="dt.invite">фон приглашения</dt><dd>1920 × 1080</dd><dt data-i18n="dt.roles">иконки ролей</dt><dd>64 × 64</dd></dl>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 ЦЕНЫ И ОПЛАТА -->
+  <section id="prices">
+    <div class="wrap">
+      <div class="sec-head">
+        <div>
+          <p class="sec-num" data-i18n="prices.num">03 · Цены и оплата</p>
+          <h2 data-i18n="prices.h2">Цены и оплата</h2>
+        </div>
+        <p class="aside" data-i18n="prices.aside">Заказ иных дизайнерских работ обсуждается при разговоре.</p>
+      </div>
+      <div class="panel row-panel">
+        <ul class="cells c3">
+          <li class="cell"><span class="big price">100<small>UAH</small></span><h3 data-i18n="price.avatar">Аватарка</h3><p class="spec">512 × 512</p></li>
+          <li class="cell"><span class="big price">150<small>UAH</small></span><h3 data-i18n="price.banner">Баннер</h3><p class="spec">1360 × 480</p></li>
+          <li class="cell"><span class="big price">550<small>UAH</small></span><h3 data-i18n="price.server">Полноценное оформление сервера</h3><p class="spec" data-i18n="price.serverSpec">под ключ</p></li>
+        </ul>
+        <div class="pay">
+          <p class="pf-label" data-i18n="pay.label">Оплата</p>
+          <p data-i18n-html="pay.text">Форма оплаты зависит от вашего региона. В этом случае оплата проходит внутриигровой валютой через <b>FunPay</b>.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 КАК ЗАКАЗАТЬ -->
+  <section id="order">
+    <div class="wrap">
+      <div class="sec-head">
+        <div>
+          <p class="sec-num" data-i18n="order.num">04 · Как заказать</p>
+          <h2 data-i18n="order.h2">Четыре шага до готовой работы</h2>
+        </div>
+        <p class="aside" data-i18n="order.aside">Всё общение идёт в Discord, от первого сообщения до готовых файлов.</p>
+      </div>
+      <div class="panel row-panel">
+        <ol class="cells c4">
+          <li class="cell"><span class="big">01</span><h3 data-i18n="step1.h">Напишите в Discord</h3><p data-i18n="step1.p">Добавьте ciaopera в друзья и коротко опишите, что нужно: аватарка, баннер или сервер целиком.</p></li>
+          <li class="cell"><span class="big">02</span><h3 data-i18n="step2.h">Обсуждаем детали</h3><p data-i18n="step2.p">Стиль, цвета, референсы, сроки и стоимость. Если есть примеры, которые нравятся, присылайте.</p></li>
+          <li class="cell"><span class="big">03</span><h3 data-i18n="step3.h">Эскиз и правки</h3><p data-i18n="step3.p">Показываю набросок и довожу работу до вида, который вам нужен.</p></li>
+          <li class="cell"><span class="big">04</span><h3 data-i18n="step4.h">Готовые файлы</h3><p data-i18n="step4.p">Отправляю работу в размерах под Discord, сразу можно ставить в профиль или на сервер.</p></li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 КОНТАКТ -->
+  <section id="contact">
+    <div class="wrap">
+      <div class="panel contact">
+        <div>
+          <p class="sec-num" data-i18n="contact.num">05 · Контакт</p>
+          <h2 data-i18n="contact.h2">Связаться со мной</h2>
+          <p class="lead" data-i18n="contact.lead">Заказы и вопросы принимаю в Discord. Скопируйте ник, добавьте в друзья и напишите, что хотите заказать.</p>
+        </div>
+        <div class="friend">
+          <p class="pf-label" data-i18n="friend.label">Добавить в друзья</p>
+          <p class="hint" data-i18n="friend.hint">Ник для поиска в Discord:</p>
+          <div class="field">
+            <output id="nick">ciaopera</output>
+            <button type="button" data-copy><svg class="ico"><use href="#i-copy"/></svg><span data-i18n="friend.btn">Скопировать</span></button>
+          </div>
+          <p class="path" data-i18n="friend.path">Discord → Друзья → Добавить в друзья → вставьте ник</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span data-i18n="footer">ciaopera · графический дизайн для Discord</span>
+    <span>Discord: ciaopera</span>
+  </div>
+</footer>
+
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" data-i18n-aria="lb.aria" aria-label="Просмотр работы" hidden>
+  <button class="lb-btn" id="lb-prev" type="button" data-i18n-aria="lb.prev" aria-label="Предыдущая работа">‹</button>
+  <figure><img id="lb-img" alt=""><figcaption id="lb-cap"></figcaption></figure>
+  <button class="lb-btn" id="lb-next" type="button" data-i18n-aria="lb.next" aria-label="Следующая работа">›</button>
+  <button class="lb-btn lb-close" id="lb-close" type="button" data-i18n-aria="lb.close" aria-label="Закрыть">×</button>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* ===== Тексты на трёх языках ===== */
+const I18N = {
+  ru: {
+    'nav.aria':'Разделы','nav.works':'Работы','nav.options':'Опции','nav.prices':'Цены','nav.order':'Как заказать','nav.contact':'Контакт',
+    'lang.aria':'Язык','nick.title':'Скопировать ник в Discord',
+    'hero.eyebrow':'Графический дизайн для Discord',
+    'hero.h1':'Оформление Discord профилей и&nbsp;<em>серверов</em>',
+    'hero.lead':'Делаю графику для профилей и серверов Discord: аватарки, баннеры, иконки и полное оформление сервера в одном стиле. Ниже примеры работ, цены и контакт для заказа.',
+    'hero.cta1':'Смотреть работы','hero.cta2':'Скопировать ник ciaopera',
+    'card.aria':'Карточка профиля ciaopera','card.tag':'ciaopera · графический дизайнер','card.about':'Обо мне',
+    'card.aboutText':'Создаю оформления в Adobe Photoshop, ориентируясь на ваш вкус, стиль и пожелания.',
+    'card.options':'Опции','chip.avatars':'Аватарки','chip.banners':'Баннеры','chip.servers':'Серверы','chip.other':'Иные дизайнерские услуги',
+    'card.btn':'Скопировать ник','card.note':'Так работа выглядит в профиле: аватарка поверх баннера',
+    'works.num':'01 · Работы','works.h2':'Примеры работ',
+    'works.aside':'Баннеры, аватарки и оформление серверов, сделанные для клиентов. Нажмите на работу, чтобы открыть её в полном размере.',
+    'tabs.aria':'Фильтр работ','tab.banners':'Баннеры','tab.avatars':'Аватарки','tab.servers':'Серверы',
+    'slot.profile-banner':'баннер профиля','slot.server-banner':'баннер сервера','slot.avatar':'аватарка','slot.server':'оформление сервера','slot.empty':'место под работу',
+    'avatars.note':'Discord показывает аватарку кругом, поэтому главное держу в центре кадра.',
+    'options.num':'02 · Опции','options.h2':'Опции для заказа',
+    'options.aside':'Каждую работу отдаю в размерах, которые принимает Discord, чтобы картинка не обрезалась и не теряла чёткость.',
+    'svc.avatar.h':'Аватарка','svc.avatar.p':'Аватарка для профиля или бота. Учитываю круглую обрезку, чтобы картинка читалась даже в маленьком размере в чате.',
+    'svc.banner.h':'Баннер профиля','svc.banner.p':'Полоса над аватаркой в профиле. Важные детали держу подальше от левого нижнего угла, который перекрывает аватарка.',
+    'svc.sbanner.h':'Баннер сервера','svc.sbanner.p':'Шапка над списком каналов. Первое, что видит участник, когда заходит на сервер.',
+    'svc.server.h':'Сервер под ключ','svc.server.p':'Вся графика сервера в одном стиле: иконка, баннер, фон приглашения и иконки ролей.',
+    'dt.size':'размер','dt.format':'формат','dt.ratio':'пропорции','dt.icon':'иконка','dt.invite':'фон приглашения','dt.roles':'иконки ролей',
+    'prices.num':'03 · Цены и оплата','prices.h2':'Цены и оплата','prices.aside':'Заказ иных дизайнерских работ обсуждается при разговоре.',
+    'price.avatar':'Аватарка','price.banner':'Баннер','price.server':'Полноценное оформление сервера','price.serverSpec':'под ключ',
+    'pay.label':'Оплата','pay.text':'Форма оплаты зависит от вашего региона. В этом случае оплата проходит внутриигровой валютой через <b>FunPay</b>.',
+    'order.num':'04 · Как заказать','order.h2':'Четыре шага до готовой работы','order.aside':'Всё общение идёт в Discord, от первого сообщения до готовых файлов.',
+    'step1.h':'Напишите в Discord','step1.p':'Добавьте ciaopera в друзья и коротко опишите, что нужно: аватарка, баннер или сервер целиком.',
+    'step2.h':'Обсуждаем детали','step2.p':'Стиль, цвета, референсы, сроки и стоимость. Если есть примеры, которые нравятся, присылайте.',
+    'step3.h':'Эскиз и правки','step3.p':'Показываю набросок и довожу работу до вида, который вам нужен.',
+    'step4.h':'Готовые файлы','step4.p':'Отправляю работу в размерах под Discord, сразу можно ставить в профиль или на сервер.',
+    'contact.num':'05 · Контакт','contact.h2':'Связаться со мной',
+    'contact.lead':'Заказы и вопросы принимаю в Discord. Скопируйте ник, добавьте в друзья и напишите, что хотите заказать.',
+    'friend.label':'Добавить в друзья','friend.hint':'Ник для поиска в Discord:','friend.btn':'Скопировать',
+    'friend.path':'Discord → Друзья → Добавить в друзья → вставьте ник',
+    'footer':'ciaopera · графический дизайн для Discord',
+    'lb.aria':'Просмотр работы','lb.prev':'Предыдущая работа','lb.next':'Следующая работа','lb.close':'Закрыть','lb.open':'Открыть',
+    'toast.ok':'Ник ciaopera скопирован. Вставьте его в Discord.','toast.fail':'Не получилось скопировать. Ник: ciaopera'
+  },
+  uk: {
+    'nav.aria':'Розділи','nav.works':'Роботи','nav.options':'Опції','nav.prices':'Ціни','nav.order':'Як замовити','nav.contact':'Контакт',
+    'lang.aria':'Мова','nick.title':'Скопіювати нік у Discord',
+    'hero.eyebrow':'Графічний дизайн для Discord',
+    'hero.h1':'Оформлення Discord профілів і&nbsp;<em>серверів</em>',
+    'hero.lead':'Створюю графіку для профілів і серверів Discord: аватарки, банери, іконки та повне оформлення сервера в одному стилі. Нижче приклади робіт, ціни та контакт для замовлення.',
+    'hero.cta1':'Дивитися роботи','hero.cta2':'Скопіювати нік ciaopera',
+    'card.aria':'Картка профілю ciaopera','card.tag':'ciaopera · графічний дизайнер','card.about':'Про мене',
+    'card.aboutText':'Створюю оформлення в Adobe Photoshop, орієнтуючись на ваш смак, стиль і побажання.',
+    'card.options':'Опції','chip.avatars':'Аватарки','chip.banners':'Банери','chip.servers':'Сервери','chip.other':'Інші дизайнерські послуги',
+    'card.btn':'Скопіювати нік','card.note':'Так робота виглядає в профілі: аватарка поверх банера',
+    'works.num':'01 · Роботи','works.h2':'Приклади робіт',
+    'works.aside':'Банери, аватарки та оформлення серверів, створені для клієнтів. Натисніть на роботу, щоб відкрити її в повному розмірі.',
+    'tabs.aria':'Фільтр робіт','tab.banners':'Банери','tab.avatars':'Аватарки','tab.servers':'Сервери',
+    'slot.profile-banner':'банер профілю','slot.server-banner':'банер сервера','slot.avatar':'аватарка','slot.server':'оформлення сервера','slot.empty':'місце для роботи',
+    'avatars.note':'Discord показує аватарку колом, тому головне тримаю в центрі кадру.',
+    'options.num':'02 · Опції','options.h2':'Опції для замовлення',
+    'options.aside':'Кожну роботу віддаю в розмірах, які приймає Discord, щоб зображення не обрізалося й не втрачало чіткість.',
+    'svc.avatar.h':'Аватарка','svc.avatar.p':'Аватарка для профілю або бота. Враховую кругле обрізання, щоб зображення читалося навіть у маленькому розмірі в чаті.',
+    'svc.banner.h':'Банер профілю','svc.banner.p':'Смуга над аватаркою в профілі. Важливі деталі тримаю подалі від лівого нижнього кута, який перекриває аватарка.',
+    'svc.sbanner.h':'Банер сервера','svc.sbanner.p':'Шапка над списком каналів. Перше, що бачить учасник, коли заходить на сервер.',
+    'svc.server.h':'Сервер під ключ','svc.server.p':'Уся графіка сервера в одному стилі: іконка, банер, фон запрошення та іконки ролей.',
+    'dt.size':'розмір','dt.format':'формат','dt.ratio':'пропорції','dt.icon':'іконка','dt.invite':'фон запрошення','dt.roles':'іконки ролей',
+    'prices.num':'03 · Ціни та оплата','prices.h2':'Ціни та оплата','prices.aside':'Замовлення інших дизайнерських робіт обговорюється під час розмови.',
+    'price.avatar':'Аватарка','price.banner':'Банер','price.server':'Повноцінне оформлення сервера','price.serverSpec':'під ключ',
+    'pay.label':'Оплата','pay.text':'Форма оплати залежить від вашого регіону. У такому разі оплата відбувається внутрішньоігровою валютою через <b>FunPay</b>.',
+    'order.num':'04 · Як замовити','order.h2':'Чотири кроки до готової роботи','order.aside':'Усе спілкування відбувається в Discord, від першого повідомлення до готових файлів.',
+    'step1.h':'Напишіть у Discord','step1.p':'Додайте ciaopera в друзі й коротко опишіть, що потрібно: аватарка, банер чи сервер повністю.',
+    'step2.h':'Обговорюємо деталі','step2.p':'Стиль, кольори, референси, терміни та вартість. Якщо є приклади, які подобаються, надсилайте.',
+    'step3.h':'Ескіз і правки','step3.p':'Показую ескіз і доводжу роботу до вигляду, який вам потрібен.',
+    'step4.h':'Готові файли','step4.p':'Надсилаю роботу в розмірах під Discord, одразу можна ставити в профіль або на сервер.',
+    'contact.num':'05 · Контакт','contact.h2':'Зв’язатися зі мною',
+    'contact.lead':'Замовлення та питання приймаю в Discord. Скопіюйте нік, додайте в друзі й напишіть, що хочете замовити.',
+    'friend.label':'Додати друга','friend.hint':'Нік для пошуку в Discord:','friend.btn':'Скопіювати',
+    'friend.path':'Discord → Друзі → Додати друга → вставте нік',
+    'footer':'ciaopera · графічний дизайн для Discord',
+    'lb.aria':'Перегляд роботи','lb.prev':'Попередня робота','lb.next':'Наступна робота','lb.close':'Закрити','lb.open':'Відкрити',
+    'toast.ok':'Нік ciaopera скопійовано. Вставте його в Discord.','toast.fail':'Не вдалося скопіювати. Нік: ciaopera'
+  },
+  en: {
+    'nav.aria':'Sections','nav.works':'Work','nav.options':'Options','nav.prices':'Prices','nav.order':'How to order','nav.contact':'Contact',
+    'lang.aria':'Language','nick.title':'Copy Discord username',
+    'hero.eyebrow':'Graphic design for Discord',
+    'hero.h1':'Design for Discord profiles and&nbsp;<em>servers</em>',
+    'hero.lead':'I make graphics for Discord profiles and servers: avatars, banners, icons and complete server design in one consistent style. Below you’ll find examples of my work, prices and how to order.',
+    'hero.cta1':'See my work','hero.cta2':'Copy username ciaopera',
+    'card.aria':'ciaopera profile card','card.tag':'ciaopera · graphic designer','card.about':'About me',
+    'card.aboutText':'I create designs in Adobe Photoshop, tailored to your taste, style and wishes.',
+    'card.options':'Options','chip.avatars':'Avatars','chip.banners':'Banners','chip.servers':'Servers','chip.other':'Other design services',
+    'card.btn':'Copy username','card.note':'This is how it looks in a profile: the avatar sits over the banner',
+    'works.num':'01 · Work','works.h2':'Examples of my work',
+    'works.aside':'Banners, avatars and server designs made for clients. Click a piece to open it full size.',
+    'tabs.aria':'Filter work','tab.banners':'Banners','tab.avatars':'Avatars','tab.servers':'Servers',
+    'slot.profile-banner':'profile banner','slot.server-banner':'server banner','slot.avatar':'avatar','slot.server':'server design','slot.empty':'space for work',
+    'avatars.note':'Discord crops avatars to a circle, so I keep the key details in the centre.',
+    'options.num':'02 · Options','options.h2':'Options to order',
+    'options.aside':'Every piece is delivered at the sizes Discord accepts, so nothing gets cropped or loses sharpness.',
+    'svc.avatar.h':'Avatar','svc.avatar.p':'An avatar for your profile or bot. I account for the circular crop so it reads well even at small size in chat.',
+    'svc.banner.h':'Profile banner','svc.banner.p':'The strip above your avatar in your profile. I keep key details away from the bottom-left corner, where the avatar overlaps.',
+    'svc.sbanner.h':'Server banner','svc.sbanner.p':'The header above the channel list. The first thing members see when they join your server.',
+    'svc.server.h':'Complete server design','svc.server.p':'All your server’s graphics in one style: icon, banner, invite background and role icons.',
+    'dt.size':'size','dt.format':'format','dt.ratio':'aspect ratio','dt.icon':'icon','dt.invite':'invite background','dt.roles':'role icons',
+    'prices.num':'03 · Prices and payment','prices.h2':'Prices and payment','prices.aside':'Other design work is discussed when we talk.',
+    'price.avatar':'Avatar','price.banner':'Banner','price.server':'Full server design','price.serverSpec':'complete package',
+    'pay.label':'Payment','pay.text':'The payment method depends on your region. In that case, payment is made in in-game currency via <b>FunPay</b>.',
+    'order.num':'04 · How to order','order.h2':'Four steps to finished work','order.aside':'All communication happens on Discord, from the first message to the final files.',
+    'step1.h':'Message me on Discord','step1.p':'Add ciaopera as a friend and briefly describe what you need: an avatar, a banner or a whole server.',
+    'step2.h':'We discuss the details','step2.p':'Style, colours, references, deadline and price. If you have examples you like, send them over.',
+    'step3.h':'Sketch and revisions','step3.p':'I show you a draft and refine it until it looks the way you want.',
+    'step4.h':'Final files','step4.p':'You get the work sized for Discord, ready to use on your profile or server.',
+    'contact.num':'05 · Contact','contact.h2':'Get in touch',
+    'contact.lead':'I take orders and questions on Discord. Copy my username, add me as a friend and tell me what you’d like.',
+    'friend.label':'Add friend','friend.hint':'Username to search on Discord:','friend.btn':'Copy',
+    'friend.path':'Discord → Friends → Add Friend → paste the username',
+    'footer':'ciaopera · graphic design for Discord',
+    'lb.aria':'Viewing work','lb.prev':'Previous piece','lb.next':'Next piece','lb.close':'Close','lb.open':'Open',
+    'toast.ok':'Username ciaopera copied. Paste it into Discord.','toast.fail':'Couldn’t copy. Username: ciaopera'
+  }
+};
+let LANG = 'ru';
+const t = k => (I18N[LANG] && I18N[LANG][k]) || I18N.ru[k] || k;
+
+function applyLang(lang){
+  LANG = I18N[lang] ? lang : 'ru';
+  document.documentElement.lang = LANG;
+  document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
+  document.querySelectorAll('[data-i18n-html]').forEach(el => { el.innerHTML = t(el.dataset.i18nHtml); });
+  document.querySelectorAll('[data-i18n-aria]').forEach(el => { el.setAttribute('aria-label', t(el.dataset.i18nAria)); });
+  document.querySelectorAll('[data-i18n-title]').forEach(el => { el.title = t(el.dataset.i18nTitle); });
+  document.querySelectorAll('.lang button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.lang === LANG)));
+  renderWorks();
+  try { localStorage.setItem('ciaopera-lang', LANG); } catch (e) {}
+}
+document.querySelectorAll('.lang button').forEach(b => b.addEventListener('click', () => applyLang(b.dataset.lang)));
+
+/* ===== Работы =====
+   Чтобы добавить работу: положите картинку в папку works/ и впишите путь в src.
+   Пустой src = место под работу. Список серверов пока пустой. */
+const WORKS = {
+  banners: [
+    { kind: 'profile-banner', src: '', size: '1360 × 480' },
+    { kind: 'server-banner',  src: '', size: '960 × 540' }
+  ],
+  avatars: [
+    { kind: 'avatar', src: '', size: '512 × 512' },
+    { kind: 'avatar', src: '', size: '512 × 512' },
+    { kind: 'avatar', src: '', size: '512 × 512' },
+    { kind: 'avatar', src: '', size: '512 × 512' }
+  ],
+  servers: []
+};
+
+function slot(w, cat, idx){
+  const label = t('slot.' + w.kind);
+  const el = document.createElement(w.src ? 'button' : 'div');
+  el.className = 'slot ' + w.kind + (w.src ? ' filled' : ' empty');
+  if (w.src){
+    el.type = 'button';
+    el.setAttribute('aria-label', t('lb.open') + ': ' + label);
+    const img = new Image(); img.src = w.src; img.alt = label; img.loading = 'lazy'; img.decoding = 'async';
+    el.append(img);
+    el.addEventListener('click', () => openLB(cat, idx));
+  } else {
+    const ph = document.createElement('div'); ph.className = 'ph';
+    const s = document.createElement('span'); s.className = 'ph-size'; s.textContent = w.size;
+    const n = document.createElement('span'); n.className = 'ph-name';
+    n.append(label, document.createElement('br'), t('slot.empty'));
+    ph.append(s, n); el.append(ph);
+  }
+  return el;
+}
+function renderWorks(){
+  const b = document.getElementById('g-banners'); b.replaceChildren();
+  WORKS.banners.forEach((w, i) => b.append(slot(w, 'banners', i)));
+  const a = document.getElementById('g-avatars'); a.replaceChildren();
+  WORKS.avatars.forEach((w, i) => a.append(slot(w, 'avatars', i)));
+  const s = document.getElementById('g-servers'); s.replaceChildren();
+  if (WORKS.servers.length){
+    const g = document.createElement('div'); g.className = 'g-servers';
+    WORKS.servers.forEach((w, i) => g.append(slot(w, 'servers', i)));
+    s.append(g);
+  } else {
+    const f = document.createElement('div'); f.className = 'empty-frame'; s.append(f);
+  }
+}
+
+/* ===== Фильтры ===== */
+const tabs = [...document.querySelectorAll('.tab')];
+function selectTab(tab, focus){
+  tabs.forEach(x => {
+    const on = x === tab;
+    x.setAttribute('aria-selected', String(on));
+    x.tabIndex = on ? 0 : -1;
+    document.getElementById('tp-' + x.dataset.tab).hidden = !on;
+  });
+  if (focus) tab.focus();
+}
+tabs.forEach((tab, i) => {
+  tab.addEventListener('click', () => selectTab(tab));
+  tab.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight') { e.preventDefault(); selectTab(tabs[(i + 1) % tabs.length], true); }
+    if (e.key === 'ArrowLeft')  { e.preventDefault(); selectTab(tabs[(i - 1 + tabs.length) % tabs.length], true); }
+  });
+});
+
+/* ===== Лайтбокс ===== */
+const lb = document.getElementById('lightbox'), lbImg = document.getElementById('lb-img'), lbCap = document.getElementById('lb-cap');
+let lbList = [], cur = 0, lastFocus = null;
+function show(i){
+  cur = (i + lbList.length) % lbList.length;
+  const w = lbList[cur];
+  lbImg.src = w.src; lbImg.alt = t('slot.' + w.kind);
+  lbCap.textContent = t('slot.' + w.kind) + ' · ' + w.size + '  ·  ' + (cur + 1) + ' / ' + lbList.length;
+}
+function openLB(cat, idx){
+  const all = WORKS[cat];
+  lbList = all.filter(w => w.src);
+  lastFocus = document.activeElement;
+  show(lbList.indexOf(all[idx]));
+  lb.hidden = false;
+  document.getElementById('lb-close').focus();
+}
+function closeLB(){ lb.hidden = true; lbImg.removeAttribute('src'); if (lastFocus) lastFocus.focus(); }
+document.getElementById('lb-close').onclick = closeLB;
+document.getElementById('lb-prev').onclick = () => show(cur - 1);
+document.getElementById('lb-next').onclick = () => show(cur + 1);
+lb.addEventListener('click', e => { if (e.target === lb) closeLB(); });
+document.addEventListener('keydown', e => {
+  if (lb.hidden) return;
+  if (e.key === 'Escape') closeLB();
+  if (e.key === 'ArrowLeft') show(cur - 1);
+  if (e.key === 'ArrowRight') show(cur + 1);
+});
+
+/* ===== Копирование ника ===== */
+const NICK = 'ciaopera', toast = document.getElementById('toast');
+let tt;
+function say(msg){ toast.textContent = msg; toast.classList.add('show'); clearTimeout(tt); tt = setTimeout(() => toast.classList.remove('show'), 2400); }
+function fallbackCopy(){
+  try {
+    const x = document.createElement('textarea'); x.value = NICK; x.setAttribute('readonly', '');
+    x.style.position = 'fixed'; x.style.opacity = '0'; document.body.append(x); x.select();
+    const ok = document.execCommand('copy'); x.remove(); return ok;
+  } catch (e) { return false; }
+}
+document.querySelectorAll('[data-copy]').forEach(btn => btn.addEventListener('click', () => {
+  const done = () => say(t('toast.ok'));
+  const fail = () => fallbackCopy() ? done() : say(t('toast.fail'));
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(NICK).then(done, fail);
+    else fail();
+  } catch (e) { fail(); }
+}));
+
+/* ===== Старт ===== */
+let saved = null;
+try { saved = localStorage.getItem('ciaopera-lang'); } catch (e) {}
+applyLang(saved || 'ru');
+</script>
+</body>
+</html>
